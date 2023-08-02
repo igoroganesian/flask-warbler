@@ -5,8 +5,10 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm
+from forms import UserAddForm, LoginForm, MessageForm, CsrfForm
 from models import db, connect_db, User, Message
+
+from werkzeug.exceptions import Unauthorized
 
 load_dotenv()
 
@@ -36,7 +38,7 @@ def add_user_to_g():
 
     else:
         g.user = None
-
+#doesn't require authorization check yet as g not set? runs before each req??
 
 def do_login(user):
     """Log in user."""
@@ -63,7 +65,12 @@ def signup():
     and re-present form.
     """
 
-    do_logout()
+    if CURR_USER_KEY in session:
+        return redirect(f"/users/{session[CURR_USER_KEY]}")
+
+    #ok?
+
+    do_logout() # >:(
 
     form = UserAddForm()
 
@@ -73,7 +80,7 @@ def signup():
                 username=form.username.data,
                 password=form.password.data,
                 email=form.email.data,
-                image_url=form.image_url.data or User.image_url.default.arg,
+                image_url=form.image_url.data or User.image_url.default.arg
             )
             db.session.commit()
 
@@ -106,7 +113,7 @@ def login():
             flash(f"Hello, {user.username}!", "success")
             return redirect("/")
 
-        flash("Invalid credentials.", 'danger')
+        flash("Invalid credentials", 'danger')
 
     return render_template('users/login.html', form=form)
 
@@ -115,10 +122,15 @@ def login():
 def logout():
     """Handle logout of user and redirect to homepage."""
 
-    form = g.csrf_form
+    form = CsrfForm()
 
-    # IMPLEMENT THIS AND FIX BUG
-    # DO NOT CHANGE METHOD ON ROUTE
+    if form.validate_on_submit():
+        session.pop(CURR_USER_KEY)
+        flash("You've been successfully logged out", "info")
+        return redirect('/')
+
+    else:
+        raise Unauthorized()
 
 
 ##############################################################################
@@ -131,8 +143,10 @@ def list_users():
     Can take a 'q' param in querystring to search by that username.
     """
 
+    form = CsrfForm()
+
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Access unauthorized", "danger")
         return redirect("/")
 
     search = request.args.get('q')
@@ -142,44 +156,50 @@ def list_users():
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
 
-    return render_template('users/index.html', users=users)
+    return render_template('users/index.html', users=users, form=form)
 
 
 @app.get('/users/<int:user_id>')
 def show_user(user_id):
     """Show user profile."""
 
+    form = CsrfForm()
+
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user)
+    return render_template('users/show.html', user=user, form=form)
 
 
 @app.get('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
 
+    form = CsrfForm()
+
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user)
+    return render_template('users/following.html', user=user, form=form)
 
 
 @app.get('/users/<int:user_id>/followers')
 def show_followers(user_id):
     """Show list of followers of this user."""
 
+    form = CsrfForm()
+
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user)
+    return render_template('users/followers.html', user=user, form=form)
 
 
 @app.post('/users/follow/<int:follow_id>')
@@ -190,13 +210,13 @@ def start_following(follow_id):
     """
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Access unauthorized", "danger")
         return redirect("/")
 
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.append(followed_user)
     db.session.commit()
-    breakpoint()
+    # breakpoint()
     return redirect(f"/users/{g.user.id}/following")
 
 
@@ -208,7 +228,7 @@ def stop_following(follow_id):
     """
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Access unauthorized", "danger")
         return redirect("/")
 
     followed_user = User.query.get_or_404(follow_id)
@@ -222,7 +242,21 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    if not g.user:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
+
+    form =
+
+    user = User.query.get_or_404(g.user.id)
+
+    if form.validate_on_submit():
+
+        location=form.location.data or None,
+        bio=form.bio.data or None,
+        header_image_url=form.header_image_url.data or None,
+
+
 
 
 @app.post('/users/delete')
@@ -314,13 +348,16 @@ def homepage():
     """
 
     if g.user:
+
+        form = CsrfForm()
+
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, form=form)
 
     else:
         return render_template('home-anon.html')
