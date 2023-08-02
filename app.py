@@ -38,7 +38,6 @@ def add_user_to_g():
 
     else:
         g.user = None
-# doesn't require authorization check yet as g not set? runs before each req??
 
 
 def do_login(user):
@@ -127,6 +126,8 @@ def logout():
     """Handle logout of user and redirect to homepage."""
 
     form = CsrfForm()
+
+    # TODO: add user check, refactor security check
 
     if form.validate_on_submit():
         session.pop(CURR_USER_KEY)
@@ -259,13 +260,13 @@ def profile():
             user.username,
             form.password.data,
         )
-
+        #TODO: prepopulating trims both routes \/
         if user:
-            user.username = form.username.data,
-            user.email = form.email.data,
-            user.image_url = form.image_url.data or DEFAULT_IMAGE_URL,
-            user.header_image_url = form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL,
-            user.bio = form.bio.data
+            user.username = form.username.data or user.username
+            user.email = form.email.data or user.email
+            user.image_url = form.image_url.data or user.image_url
+            user.header_image_url = form.header_image_url.data or user.header_image_url
+            user.bio = form.bio.data or user.bio
 
             db.session.commit()
             return redirect(f"/users/{user.id}")
@@ -276,6 +277,7 @@ def profile():
             form.image_url = form.image_url.data,
             form.header_image_url = form.header_image_url.data,
             form.bio = form.bio.data,
+
             flash("Incorrect password", "danger")
             return render_template('users/edit.html', form=form)
 
@@ -288,6 +290,7 @@ def delete_user():
 
     Redirect to signup page.
     """
+    #TODO: security check
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -374,11 +377,13 @@ def homepage():
 
         form = CsrfForm()
 
-        g.user.following[USERS].messages[MESSAGES]
+        home_message_ids = [following.id for following in g.user.following]
+        home_message_ids.append(g.user.id)
 
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
+                    .filter(Message.user_id.in_(home_message_ids))
                     .limit(100)
                     .all())
 

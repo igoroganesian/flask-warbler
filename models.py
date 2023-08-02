@@ -162,7 +162,7 @@ class Message(db.Model):
 
     id = db.Column(
         db.Integer,
-        primary_key=True,  # TODO: autoincrement??
+        primary_key=True,
     )
 
     text = db.Column(
