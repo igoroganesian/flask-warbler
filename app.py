@@ -5,8 +5,8 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm, CsrfForm
-from models import db, connect_db, User, Message
+from forms import UserAddForm, LoginForm, UserEditForm, MessageForm, CsrfForm
+from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 
 from werkzeug.exceptions import Unauthorized
 
@@ -250,16 +250,36 @@ def profile():
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    # form =
-
     user = User.query.get_or_404(g.user.id)
 
-    # if form.validate_on_submit():
+    form = UserEditForm()
 
-    #     location = form.location.data or None,
-    #     bio = form.bio.data or None,
-    #     header_image_url = form.header_image_url.data or None,
-    # return render_template()
+    if form.validate_on_submit():
+        user = User.authenticate(
+            user.username,
+            form.password.data,
+        )
+
+        if user:
+            user.username = form.username.data,
+            user.email = form.email.data,
+            user.image_url = form.image_url.data or DEFAULT_IMAGE_URL,
+            user.header_image_url = form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL,
+            user.bio = form.bio.data
+
+            db.session.commit()
+            return redirect(f"/users/{user.id}")
+
+        else:
+            form.username = form.username.data,
+            form.email = form.email.data,
+            form.image_url = form.image_url.data,
+            form.header_image_url = form.header_image_url.data,
+            form.bio = form.bio.data,
+            flash("Incorrect password", "danger")
+            return render_template('users/edit.html', form=form)
+
+    return render_template('/users/edit.html', form=form)
 
 
 @app.post('/users/delete')
@@ -353,6 +373,8 @@ def homepage():
     if g.user:
 
         form = CsrfForm()
+
+        g.user.following[USERS].messages[MESSAGES]
 
         messages = (Message
                     .query
