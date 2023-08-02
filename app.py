@@ -38,7 +38,8 @@ def add_user_to_g():
 
     else:
         g.user = None
-#doesn't require authorization check yet as g not set? runs before each req??
+# doesn't require authorization check yet as g not set? runs before each req??
+
 
 def do_login(user):
     """Log in user."""
@@ -68,9 +69,9 @@ def signup():
     if CURR_USER_KEY in session:
         return redirect(f"/users/{session[CURR_USER_KEY]}")
 
-    #ok?
+    # ok?
 
-    do_logout() # >:(
+    do_logout()  # >:(
 
     form = UserAddForm()
 
@@ -99,6 +100,9 @@ def signup():
 @app.route('/login', methods=["GET", "POST"])
 def login():
     """Handle user login and redirect to homepage on success."""
+
+    if CURR_USER_KEY in session:
+        return redirect(f"/users/{session[CURR_USER_KEY]}")
 
     form = LoginForm()
 
@@ -246,17 +250,16 @@ def profile():
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    form =
+    # form =
 
     user = User.query.get_or_404(g.user.id)
 
-    if form.validate_on_submit():
+    # if form.validate_on_submit():
 
-        location=form.location.data or None,
-        bio=form.bio.data or None,
-        header_image_url=form.header_image_url.data or None,
-
-
+    #     location = form.location.data or None,
+    #     bio = form.bio.data or None,
+    #     header_image_url = form.header_image_url.data or None,
+    # return render_template()
 
 
 @app.post('/users/delete')
