@@ -36,6 +36,8 @@ def add_user_to_g():
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
+        g.form = CsrfForm()
+
     else:
         g.user = None
 
@@ -125,11 +127,11 @@ def login():
 def logout():
     """Handle logout of user and redirect to homepage."""
 
-    form = CsrfForm()
+    if not g.user:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
 
-    # TODO: add user check, refactor security check
-
-    if form.validate_on_submit():
+    if g.form.validate_on_submit():
         session.pop(CURR_USER_KEY)
         flash("You've been successfully logged out", "info")
         return redirect('/')
@@ -148,7 +150,7 @@ def list_users():
     Can take a 'q' param in querystring to search by that username.
     """
 
-    form = CsrfForm()
+    # form = CsrfForm()
 
     if not g.user:
         flash("Access unauthorized", "danger")
@@ -161,14 +163,14 @@ def list_users():
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
 
-    return render_template('users/index.html', users=users, form=form)
+    return render_template('users/index.html', users=users, form=g.form)
 
 
 @app.get('/users/<int:user_id>')
 def show_user(user_id):
     """Show user profile."""
 
-    form = CsrfForm()
+    # form = CsrfForm()
 
     if not g.user:
         flash("Access unauthorized", "danger")
@@ -176,35 +178,35 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user, form=form)
+    return render_template('users/show.html', user=user, form=g.form)
 
 
 @app.get('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
 
-    form = CsrfForm()
+    # form = CsrfForm()
 
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user, form=form)
+    return render_template('users/following.html', user=user, form=g.form)
 
 
 @app.get('/users/<int:user_id>/followers')
 def show_followers(user_id):
     """Show list of followers of this user."""
 
-    form = CsrfForm()
+    # form = CsrfForm()
 
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user, form=form)
+    return render_template('users/followers.html', user=user, form=g.form)
 
 
 @app.post('/users/follow/<int:follow_id>')
@@ -253,35 +255,31 @@ def profile():
 
     user = User.query.get_or_404(g.user.id)
 
-    form = UserEditForm()
+    form = UserEditForm(obj=user)
 
     if form.validate_on_submit():
+
         user = User.authenticate(
             user.username,
             form.password.data,
         )
-        #TODO: prepopulating trims both routes \/
+
         if user:
-            user.username = form.username.data or user.username
-            user.email = form.email.data or user.email
-            user.image_url = form.image_url.data or user.image_url
-            user.header_image_url = form.header_image_url.data or user.header_image_url
-            user.bio = form.bio.data or user.bio
+            user.username = form.username.data
+            user.email = form.email.data
+            user.image_url = form.image_url.data
+            user.header_image_url = form.header_image_url.data
+            user.bio = form.bio.data
 
             db.session.commit()
             return redirect(f"/users/{user.id}")
 
         else:
-            form.username = form.username.data,
-            form.email = form.email.data,
-            form.image_url = form.image_url.data,
-            form.header_image_url = form.header_image_url.data,
-            form.bio = form.bio.data,
 
             flash("Incorrect password", "danger")
             return render_template('users/edit.html', form=form)
 
-    return render_template('/users/edit.html', form=form)
+    return render_template('/users/edit.html', form=form, user=user)
 
 
 @app.post('/users/delete')
@@ -290,18 +288,19 @@ def delete_user():
 
     Redirect to signup page.
     """
-    #TODO: security check
 
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    do_logout()
+    if g.form.validate_on_submit():
 
-    db.session.delete(g.user)
-    db.session.commit()
+        do_logout()
 
-    return redirect("/signup")
+        db.session.delete(g.user)
+        db.session.commit()
+
+        return redirect("/signup")
 
 
 ##############################################################################

@@ -1,3 +1,6 @@
+<!-- <i class="bi bi-star"></i>
+<i class="bi bi-star-fill"></i> -->
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -9,9 +12,7 @@
       <li class="list-group-item">
 
         <a href="{{ url_for('show_user', user_id=message.user.id) }}">
-          <img src="{{ message.user.image_url }}"
-               alt=""
-               class="timeline-image">
+          <img src="{{ message.user.image_url }}" alt="" class="timeline-image">
         </a>
 
         <div class="message-area">
@@ -22,18 +23,15 @@
 
             {% if g.user %}
             {% if g.user.id == message.user.id %}
-            <form method="POST"
-                  action="/messages/{{ message.id }}/delete">
+            <form method="POST" action="/messages/{{ message.id }}/delete">
               <button class="btn btn-outline-danger">Delete</button>
             </form>
             {% elif g.user.is_following(message.user) %}
-            <form method="POST"
-                  action="/users/stop-following/{{ message.user.id }}">
+            <form method="POST" action="/users/stop-following/{{ message.user.id }}">
               <button class="btn btn-primary">Unfollow</button>
             </form>
             {% else %}
-            <form method="POST"
-                  action="/users/follow/{{ message.user.id }}">
+            <form method="POST" action="/users/follow/{{ message.user.id }}">
               <button class="btn btn-outline-primary btn-sm">
                 Follow
               </button>
@@ -43,9 +41,13 @@
           </div>
           <p class="single-message">{{ message.text }}</p>
           <span class="text-muted">
-              {{ message.timestamp.strftime('%d %B %Y') }}
-            </span>
+            {{ message.timestamp.strftime('%d %B %Y') }}
+            <i class="bi bi-star"></i>
+          </span>
+
         </div>
+
+
       </li>
     </ul>
   </div>

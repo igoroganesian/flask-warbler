@@ -38,7 +38,8 @@ class UserEditForm(FlaskForm):
 
     username = StringField(
         'Username',
-        validators=[Optional(), Length(max=30)]
+        validators=[Optional(), Length(max=30)],
+
     )
 
     email = StringField(
@@ -67,7 +68,6 @@ class UserEditForm(FlaskForm):
     )
 
 
-
 class LoginForm(FlaskForm):
     """Login form."""
 
@@ -80,6 +80,7 @@ class LoginForm(FlaskForm):
         'Password',
         validators=[InputRequired(), Length(min=6, max=50)],
     )
+
 
 class CsrfForm(FlaskForm):
     """ form for CSRF protection """
