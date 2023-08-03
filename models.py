@@ -89,6 +89,12 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref="user")
 
+    likes = db.relationship(
+        "Message",
+        secondary="likes",
+        backref="users",
+    )
+
     followers = db.relationship(
         "User",
         secondary="follows",
@@ -179,6 +185,25 @@ class Message(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+class Like(db.Model):
+    """A liked message."""
+
+    __tablename__ = 'likes'
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        primary_key=True,
+        nullable=False,
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete='CASCADE'),
+        primary_key=True,
         nullable=False,
     )
 

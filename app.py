@@ -127,9 +127,9 @@ def login():
 def logout():
     """Handle logout of user and redirect to homepage."""
 
-    if not g.user:
-        flash("Access unauthorized", "danger")
-        return redirect("/")
+    # if not g.user:
+    #     flash("Access unauthorized", "danger")
+    #     return redirect("/")
 
     if g.form.validate_on_submit():
         session.pop(CURR_USER_KEY)
@@ -338,7 +338,7 @@ def show_message(message_id):
         return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
-    return render_template('messages/show.html', message=msg)
+    return render_template('messages/show.html', message=msg, form=g.form)
 
 
 @app.post('/messages/<int:message_id>/delete')
