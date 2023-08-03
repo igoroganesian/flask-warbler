@@ -6,7 +6,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, UserEditForm, MessageForm, CsrfForm
-from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
+from models import db, connect_db, User, Message
 
 from werkzeug.exceptions import Unauthorized
 
@@ -36,7 +36,7 @@ def add_user_to_g():
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
-        g.form = CsrfForm()
+        g.CsrfForm = CsrfForm()
 
     else:
         g.user = None
@@ -67,14 +67,10 @@ def signup():
     and re-present form.
     """
 
-    do_logout()
+    do_logout() #?
 
     if CURR_USER_KEY in session:
         return redirect(f"/users/{session[CURR_USER_KEY]}")
-
-    # ok?
-
-     # >:(
 
     form = UserAddForm()
 
@@ -129,17 +125,17 @@ def login():
 def logout():
     """Handle logout of user and redirect to homepage."""
 
-    # if not g.user:
-    #     flash("Access unauthorized", "danger")
-    #     return redirect("/")
+    if not g.user:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
 
-    if g.form.validate_on_submit():
+    if g.CsrfForm.validate_on_submit():
         session.pop(CURR_USER_KEY)
         flash("You've been successfully logged out", "info")
         return redirect('/')
 
-    # else:
-    #     raise Unauthorized()
+    else:
+        raise Unauthorized()
 
 
 ##############################################################################
@@ -152,8 +148,6 @@ def list_users():
     Can take a 'q' param in querystring to search by that username.
     """
 
-    # form = CsrfForm()
-
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
@@ -165,50 +159,44 @@ def list_users():
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
 
-    return render_template('users/index.html', users=users, form=g.form)
+    return render_template('users/index.html', users=users, form=g.CsrfForm)
 
 
 @app.get('/users/<int:user_id>')
 def show_user(user_id):
     """Show user profile."""
 
-    # form = CsrfForm()
-
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user, form=g.form)
+    return render_template('users/show.html', user=user, form=g.CsrfForm)
 
 
 @app.get('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
 
-    # form = CsrfForm()
-
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user, form=g.form)
+    return render_template('users/following.html', user=user, form=g.CsrfForm)
 
 
 @app.get('/users/<int:user_id>/followers')
 def show_followers(user_id):
     """Show list of followers of this user."""
 
-    # form = CsrfForm()
-
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user, form=g.form)
+    return render_template('users/followers.html', user=user, form=g.CsrfForm)
 
 
 @app.post('/users/follow/<int:follow_id>')
@@ -295,7 +283,7 @@ def delete_user():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    if g.form.validate_on_submit():
+    if g.CsrfForm.validate_on_submit():
 
         do_logout()
 
@@ -340,7 +328,14 @@ def show_message(message_id):
         return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
-    return render_template('messages/show.html', message=msg, form=g.form)
+    like_ids = [like.id for like in g.user.likes]
+
+    return render_template(
+        'messages/show.html',
+        message=msg,
+        form=g.CsrfForm,
+        like_ids=like_ids
+        )
 
 
 @app.post('/messages/<int:message_id>/delete')
@@ -376,8 +371,6 @@ def homepage():
 
     if g.user:
 
-        form = CsrfForm()
-
         home_message_ids = [following.id for following in g.user.following]
         home_message_ids.append(g.user.id)
 
@@ -393,7 +386,7 @@ def homepage():
         return render_template(
             'home.html',
             messages=messages,
-            form=form,
+            form=g.CsrfForm,
             like_ids=like_ids
         )
 
@@ -427,10 +420,9 @@ def show_likes(user_id):
     return render_template(
         'users/likes.html',
         user=user,
-        form=g.form,
+        # form=g.CsrfForm,
         like_ids=like_ids
     )
-
 
 @app.post('/users/<int:user_id>/likes/<int:msg_id>/add')
 def add_like(user_id, msg_id):
@@ -440,13 +432,13 @@ def add_like(user_id, msg_id):
         flash("Access unauthorized", "danger")
         return redirect("/")
 
+    #prevent liking own messages + csrf
     message = Message.query.get_or_404(msg_id)
     g.user.likes.append(message)
 
     db.session.commit()
 
     return redirect('/')
-
 
 @app.post('/users/<int:user_id>/likes/<int:msg_id>/remove')
 def remove_like(user_id, msg_id):

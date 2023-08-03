@@ -8,21 +8,21 @@
     <li class="list-group-item">
       <a href="/messages/{{ like.message_id }}" class="message-link"></a>
 
-      <a href="/users/{{ user.id }}">
-        <img src="{{ user.image_url }}" alt="user image" class="timeline-image">
+      <a href="/users/{{ like.user.id }}">
+        <img src="{{ like.user.image_url }}" alt="user image" class="timeline-image">
       </a>
 
       <div class="message-area">
-        <a href="/users/{{ user.id }}">@{{ user.username }}</a>
+        <a href="/users/{{ like.user.id }}">@{{ like.user.username }}</a>
         <span class="text-muted">
           {{ like.timestamp.strftime('%d %B %Y') }}
         </span>
-        <form action="#" method="POST">
-          {{ form.hidden_tag() }}
-          <button class="btn shadow-none"><a><i class="bi bi-star"></a></i></button>
-        </form>
         <p>{{ like.text }}</p>
       </div>
+      <form action="/users/{{ user.id }}/likes/{{ like.id }}/remove" method="POST">
+          {{ form.hidden_tag() }}
+          <button class="btn shadow-none"><a><i class="bi bi-star-fill"></a></i></button>
+      </form>
     </li>
 
     {% endfor %}

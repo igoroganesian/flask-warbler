@@ -40,7 +40,7 @@
           <li class="stat">
             <p class="small">Likes</p>
             <h4>
-              <a href="/users/{{ g.user.likes }}/likes">
+              <a href="/users/{{ g.user.id }}/likes">
                 {{ g.user.likes | length }}
               </a>
             </h4>
@@ -68,12 +68,22 @@
         {% if msg.user_id != g.user.id %}
         <form>
           {{ form.hidden_tag() }}
+
+          hidden input for toggle ->
           {% if msg.id not in like_ids %}
-          <button formaction="/users/{{g.user.id}}/likes/{{msg.id}}/add" formmethod="POST" class="btn shadow-none"><a><i
-                class="bi bi-star"></a></i></button>
+          <button
+            formaction="/users/{{g.user.id}}/likes/{{msg.id}}/add"
+            formmethod="POST"
+            class="btn shadow-none">
+            <i class="bi bi-star"></i>
+          </button>
           {% else %}
-          <button formaction="/users/{{g.user.id}}/likes/{{msg.id}}/remove" formmethod="POST"
-            class="btn shadow-none"><a><i class="bi bi-star-fill"></a></i></button>
+          <button
+            formaction="/users/{{g.user.id}}/likes/{{msg.id}}/remove"
+            formmethod="POST"
+            class="btn shadow-none">
+            <i class="bi bi-star-fill"></i>
+          </button>
           {% endif %}
         </form>
         {% endif %}

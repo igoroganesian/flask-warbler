@@ -89,10 +89,12 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref="user")
 
+    #liked messages [<>, <>]
     likes = db.relationship(
         "Message",
         secondary="likes",
         backref="users",
+        #users who've liked..
     )
 
     followers = db.relationship(
@@ -154,7 +156,7 @@ class User(db.Model):
         return len(found_user_list) == 1
 
     def is_following(self, other_user):
-        """Is this user following `other_use`?"""
+        """Is this user following `other_user`?"""
 
         found_user_list = [
             user for user in self.following if user == other_user]
@@ -164,6 +166,7 @@ class User(db.Model):
 class Message(db.Model):
     """An individual message ("warble")."""
 
+#TODO: message re: backref
     __tablename__ = 'messages'
 
     id = db.Column(
@@ -189,7 +192,7 @@ class Message(db.Model):
     )
 
 class Like(db.Model):
-    """A liked message."""
+    """ Messages liked by user """
 
     __tablename__ = 'likes'
 
@@ -197,14 +200,14 @@ class Like(db.Model):
         db.Integer,
         db.ForeignKey('users.id', ondelete='CASCADE'),
         primary_key=True,
-        nullable=False,
+        # nullable=False,
     )
 
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id', ondelete='CASCADE'),
         primary_key=True,
-        nullable=False,
+        # nullable=False,
     )
 
 
