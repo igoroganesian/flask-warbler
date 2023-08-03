@@ -440,8 +440,8 @@ def add_like(follow_id):
 
     message = Message.query.get_or_404(?)
     g.user.likes.append(message)
+
     db.session.commit()
-    # breakpoint()
     return redirect(f"/users/{g.user.id}/following")
 
 
@@ -455,6 +455,6 @@ def remove_like(follow_id):
 
     liked_message = Message.query.get_or_404(?)
     g.user.likes.remove(liked_message)
-    db.session.commit()
 
+    db.session.commit()
     return redirect(f"/users/{g.user.id}/following")
