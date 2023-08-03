@@ -67,12 +67,14 @@ def signup():
     and re-present form.
     """
 
+    do_logout()
+
     if CURR_USER_KEY in session:
         return redirect(f"/users/{session[CURR_USER_KEY]}")
 
     # ok?
 
-    do_logout()  # >:(
+     # >:(
 
     form = UserAddForm()
 
@@ -136,8 +138,8 @@ def logout():
         flash("You've been successfully logged out", "info")
         return redirect('/')
 
-    else:
-        raise Unauthorized()
+    # else:
+    #     raise Unauthorized()
 
 
 ##############################################################################
@@ -393,7 +395,7 @@ def homepage():
             messages=messages,
             form=form,
             like_ids=like_ids
-            )
+        )
 
     else:
         return render_template('home-anon.html')
@@ -427,34 +429,35 @@ def show_likes(user_id):
         user=user,
         form=g.form,
         like_ids=like_ids
-        )
+    )
 
 
-@app.post('/users/<int:user_id>/likes')
-def add_like(follow_id):
+@app.post('/users/<int:user_id>/likes/<int:msg_id>/add')
+def add_like(user_id, msg_id):
     """Add message to likes for currently-logged-in user. """
 
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    message = Message.query.get_or_404(?)
+    message = Message.query.get_or_404(msg_id)
     g.user.likes.append(message)
 
     db.session.commit()
-    return redirect(f"/users/{g.user.id}/following")
+
+    return redirect('/')
 
 
-@app.post('/users/<int:user_id>/likes')
-def remove_like(follow_id):
+@app.post('/users/<int:user_id>/likes/<int:msg_id>/remove')
+def remove_like(user_id, msg_id):
     """Remove message from likes for this user. """
 
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    liked_message = Message.query.get_or_404(?)
+    liked_message = Message.query.get_or_404(msg_id)
     g.user.likes.remove(liked_message)
 
     db.session.commit()
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect('/')

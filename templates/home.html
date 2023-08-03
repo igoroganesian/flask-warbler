@@ -66,12 +66,14 @@
         </div>
 
         {% if msg.user_id != g.user.id %}
-        <form action="/users/{{g.user.id}}/likes" method="POST">
+        <form>
           {{ form.hidden_tag() }}
           {% if msg.id not in like_ids %}
-            <button class="btn shadow-none"><a><i class="bi bi-star"></a></i></button>
-            {% else %}
-            <button class="btn shadow-none"><a><i class="bi bi-star-fill"></a></i></button>
+          <button formaction="/users/{{g.user.id}}/likes/{{msg.id}}/add" formmethod="POST" class="btn shadow-none"><a><i
+                class="bi bi-star"></a></i></button>
+          {% else %}
+          <button formaction="/users/{{g.user.id}}/likes/{{msg.id}}/remove" formmethod="POST"
+            class="btn shadow-none"><a><i class="bi bi-star-fill"></a></i></button>
           {% endif %}
         </form>
         {% endif %}
@@ -83,4 +85,3 @@
 
 </div>
 {% endblock %}
-
