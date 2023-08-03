@@ -379,6 +379,8 @@ def homepage():
         home_message_ids = [following.id for following in g.user.following]
         home_message_ids.append(g.user.id)
 
+        like_ids = [like.id for like in g.user.likes]
+
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
@@ -386,7 +388,12 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages, form=form)
+        return render_template(
+            'home.html',
+            messages=messages,
+            form=form,
+            like_ids=like_ids
+            )
 
     else:
         return render_template('home-anon.html')
@@ -399,3 +406,55 @@ def add_header(response):
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
     response.cache_control.no_store = True
     return response
+
+
+##############################################################################
+# Likes routes:
+
+@app.get('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Show list of liked messages of this user."""
+
+    if not g.user:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    like_ids = [like.id for like in user.likes]
+
+    return render_template(
+        'users/likes.html',
+        user=user,
+        form=g.form,
+        like_ids=like_ids
+        )
+
+
+@app.post('/users/<int:user_id>/likes')
+def add_like(follow_id):
+    """Add message to likes for currently-logged-in user. """
+
+    if not g.user:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
+
+    message = Message.query.get_or_404(?)
+    g.user.likes.append(message)
+    db.session.commit()
+    # breakpoint()
+    return redirect(f"/users/{g.user.id}/following")
+
+
+@app.post('/users/<int:user_id>/likes')
+def remove_like(follow_id):
+    """Remove message from likes for this user. """
+
+    if not g.user:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
+
+    liked_message = Message.query.get_or_404(?)
+    g.user.likes.remove(liked_message)
+    db.session.commit()
+
+    return redirect(f"/users/{g.user.id}/following")

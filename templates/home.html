@@ -37,6 +37,14 @@
               </a>
             </h4>
           </li>
+          <li class="stat">
+            <p class="small">Likes</p>
+            <h4>
+              <a href="/users/{{ g.user.likes }}/likes">
+                {{ g.user.likes | length }}
+              </a>
+            </h4>
+          </li>
         </ul>
       </div>
     </div>
@@ -54,14 +62,20 @@
           <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
           <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
 
-
-          <form action="#" method="POST">
-            {{ form.hidden_tag() }}
-            <a><i class="bi bi-star"></i></a>
-          </form>
-
           <p>{{ msg.text }}</p>
         </div>
+
+        {% if msg.user_id != g.user.id %}
+        <form action="/users/{{g.user.id}}/likes" method="POST">
+          {{ form.hidden_tag() }}
+          {% if msg.id not in like_ids %}
+            <button class="btn shadow-none"><a><i class="bi bi-star"></a></i></button>
+            {% else %}
+            <button class="btn shadow-none"><a><i class="bi bi-star-fill"></a></i></button>
+          {% endif %}
+        </form>
+        {% endif %}
+
       </li>
       {% endfor %}
     </ul>
@@ -69,3 +83,4 @@
 
 </div>
 {% endblock %}
+

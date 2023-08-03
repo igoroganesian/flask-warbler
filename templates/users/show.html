@@ -17,10 +17,12 @@
         <span class="text-muted">
           {{ message.timestamp.strftime('%d %B %Y') }}
         </span>
+        {% if message.user_id != user.id %}
         <form action="#" method="POST">
           {{ form.hidden_tag() }}
-          <a><i class="bi bi-star"></i></a>
+          <button class="btn shadow-none"><a><i class="bi bi-star"></a></i></button>
         </form>
+        {% endif %}
         <p>{{ message.text }}</p>
       </div>
     </li>
