@@ -4,17 +4,13 @@
 #
 #    python -m unittest test_user_model.py
 
-
-
 import os
 
 from unittest import TestCase
 
 from sqlalchemy.exc import IntegrityError
 
-from models import db, Follow, User, Message, Like
-
-from flask import session
+from models import db, User
 
 from flask_bcrypt import Bcrypt
 
@@ -47,11 +43,9 @@ class UserModelTestCase(TestCase):
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)
-        # username - email - pw - image_url
         u2 = User.signup("u2", "u2@email.com", "password", None)
         u3 = User.signup("kitten", "kitten@gmail.com",
                          "imkittens", TEST_IMAGE_URL)
-
 
 
         db.session.commit()
@@ -93,8 +87,6 @@ class UserModelTestCase(TestCase):
         self.assertEqual(User.authenticate(u3.username, "imkittens"), u3)
 
     def test_authenticate_fail(self):
-
-        # u3 username = 'kitten', password = 'imkittens'
 
         # username doesn't exist
         self.assertFalse(User.authenticate('iamnotakitten', "imkittens"))
