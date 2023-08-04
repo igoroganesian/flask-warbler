@@ -129,7 +129,7 @@ def logout():
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    if g.CsrfForm.validate_on_submit():
+    if g.csrfform.validate_on_submit():
         session.pop(CURR_USER_KEY)
         flash("You've been successfully logged out", "info")
         return redirect('/')
