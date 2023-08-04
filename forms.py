@@ -38,8 +38,7 @@ class UserEditForm(FlaskForm):
 
     username = StringField(
         'Username',
-        validators=[Optional(), Length(max=30)],
-
+        validators=[Optional(), Length(max=30)]
     )
 
     email = StringField(
@@ -73,12 +72,12 @@ class LoginForm(FlaskForm):
 
     username = StringField(
         'Username',
-        validators=[InputRequired(), Length(max=30)],
+        validators=[InputRequired(), Length(max=30)]
     )
 
     password = PasswordField(
         'Password',
-        validators=[InputRequired(), Length(min=6, max=50)],
+        validators=[InputRequired(), Length(min=6, max=50)]
     )
 
 

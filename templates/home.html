@@ -58,33 +58,38 @@
         <a href="/users/{{ msg.user.id }}">
           <img src="{{ msg.user.image_url }}" alt="" class="timeline-image">
         </a>
-        <div class="message-area">
+        <div class="message-area col-lg-10 col-md-9">
           <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
-          <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
-
+          <span class="text-muted">
+            {{ msg.timestamp.strftime('%d %B %Y') }}
+            </span>
           <p>{{ msg.text }}</p>
         </div>
 
         {% if msg.user_id != g.user.id %}
-        <form>
+        <form class="col-2">
           {{ form.hidden_tag() }}
           <input type="hidden" name="came_from" value="/">
           {% if msg not in g.user.liked_messages %}
-          <button formaction="/likes/{{msg.id}}/add" formmethod="POST" class="btn shadow-none">
-            <a><i class="bi bi-star"></i></a>
+          <button
+            formaction="/likes/{{msg.id}}/add"
+            formmethod="POST"
+            class="btn shadow-none">
+          <a><i class="bi bi-star"></i></a>
           </button>
           {% else %}
-          <button formaction="/likes/{{msg.id}}/remove" formmethod="POST" class="btn shadow-none">
-            <a><i class="bi bi-star-fill"></i></a>
+          <button
+            formaction="/likes/{{msg.id}}/remove"
+            formmethod="POST"
+            class="btn shadow-none">
+          <a><i class="bi bi-star-fill"></i></a>
           </button>
           {% endif %}
         </form>
         {% endif %}
-
       </li>
       {% endfor %}
     </ul>
   </div>
-
 </div>
 {% endblock %}

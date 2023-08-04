@@ -67,7 +67,7 @@ def signup():
     and re-present form.
     """
 
-    do_logout()  # ?
+    do_logout()
 
     if CURR_USER_KEY in session:
         return redirect(f"/users/{session[CURR_USER_KEY]}")
@@ -213,7 +213,7 @@ def start_following(follow_id):
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.append(followed_user)
     db.session.commit()
-    # breakpoint()
+
     return redirect(f"/users/{g.user.id}/following")
 
 
@@ -429,14 +429,13 @@ def add_like(msg_id):
     message = Message.query.get_or_404(msg_id)
 
     if message in g.user.messages:
-        # should be where they were,but we don't know
 
         flash("You can't like your own messages!!", 'info')
     else:
         g.user.liked_messages.append(message)
 
         db.session.commit()
-        # TODO:
+
         came_from = request.form['came_from']
         return redirect(came_from)
 

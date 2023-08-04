@@ -14,19 +14,18 @@ body.error-404 {
 
 .btn {
   border-radius: 50px;
-  z-index:100;
+  /* z-index:100; */
 }
 
 .btn:hover {
   cursor: pointer;
-  z-index:100;
+  /* z-index:100; */
 }
 
-.bi-star,
+/* .bi-star,
 .bi-star-fill{
-
   z-index:100;
-}
+} */
 
 
 /* ======================= Nav */
@@ -269,6 +268,15 @@ nav + .container {
 }
 
 #messages .message-link {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+#likes .message-link {
   position: absolute;
   top: 0;
   bottom: 0;

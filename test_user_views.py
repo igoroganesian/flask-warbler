@@ -13,7 +13,9 @@ os.environ['DATABASE_URL'] = "postgresql:///warbler_test"
 
 from app import app, CURR_USER_KEY
 
-TEST_IMAGE_URL = "https://www.animalfriends.co.uk/siteassets/media/images/article-images/cat-articles/38_afi_article1_caring-for-a-kitten-tips-for-the-first-month.png"
+TEST_IMAGE_URL = ("https://www.animalfriends.co.uk/siteassets/media/images" +
+                 "/article-images/cat-articles/38_afi_article1_caring-for-" +
+                 "a-kitten-tips-for-the-first-month.png")
 
 db.drop_all()
 db.create_all()

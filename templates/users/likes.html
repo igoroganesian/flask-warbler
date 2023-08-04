@@ -1,17 +1,14 @@
 {% extends 'users/detail.html' %}
 {% block user_details %}
+
 <div class="col-sm-6">
   <ul class="list-group" id="likes">
-
     {% for liked_message in user.liked_messages %}
-
     <li class="list-group-item">
       <a href="/messages/{{ liked_message.id }}" class="message-link"></a>
-
       <a href="/users/{{ liked_message.user.id }}">
         <img src="{{ liked_message.user.image_url }}" alt="user image" class="timeline-image">
       </a>
-
       <div class="message-area">
         <a href="/users/{{ liked_message.user.id }}">@{{ liked_message.user.username }}</a>
         <span class="text-muted">
@@ -19,15 +16,21 @@
         </span>
         <p>{{ liked_message.text }}</p>
       </div>
+
       <form action="/likes/{{ liked_message.id }}/remove" method="POST">
-        <input type="hidden" name="came_from" value="/users/{{user.id}}/likes">
-        {{ form.hidden_tag() }}
-        <button class="btn shadow-none"><a><i class="bi bi-star-fill"></a></i></button>
-      </form>
+          {{ form.hidden_tag() }}
+          <input
+            type="hidden"
+            name="came_from"
+            value="/users/{{user.id}}/likes">
+          <button
+            class="btn shadow-none">
+            <a><i class="bi bi-star-fill"></a></i>
+          </button>
+        </form>
+
     </li>
-
     {% endfor %}
-
   </ul>
 </div>
 {% endblock %}
