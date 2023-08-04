@@ -4,6 +4,8 @@
 #
 #    python -m unittest test_user_model.py
 
+
+
 import os
 
 from unittest import TestCase
@@ -41,13 +43,16 @@ db.create_all()
 
 class UserModelTestCase(TestCase):
     def setUp(self):
-        #cascade deletes Messages etc.?
+        # cascade deletes Messages etc.?
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)
-        #username - email - pw - image_url
+        # username - email - pw - image_url
         u2 = User.signup("u2", "u2@email.com", "password", None)
-        u3 = User.signup("kitten", "kitten@gmail.com", "imkittens", TEST_IMAGE_URL)
+        u3 = User.signup("kitten", "kitten@gmail.com",
+                         "imkittens", TEST_IMAGE_URL)
+
+
 
         db.session.commit()
         self.u1_id = u1.id
@@ -73,7 +78,8 @@ class UserModelTestCase(TestCase):
     def test_signup_fail(self):
 
         with self.assertRaises(IntegrityError):
-            User.signup("kitten", "kitten@gmail.com", "imkittens", TEST_IMAGE_URL)
+            User.signup("kitten", "kitten@gmail.com",
+                        "imkittens", TEST_IMAGE_URL)
             db.session.commit()
 
         with self.assertRaises(ValueError):
@@ -85,3 +91,37 @@ class UserModelTestCase(TestCase):
         u3 = User.query.get(self.u3_id)
 
         self.assertEqual(User.authenticate(u3.username, "imkittens"), u3)
+
+    def test_authenticate_fail(self):
+
+        # u3 username = 'kitten', password = 'imkittens'
+
+        # username doesn't exist
+        self.assertFalse(User.authenticate('iamnotakitten', "imkittens"))
+
+        # wrong password
+        self.assertFalse(User.authenticate('kitten', "imnotkittens"))
+
+    def test_is_following(self):
+
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+
+        self.assertFalse(u1.is_following(u2))
+
+        u1.following.append(u2)
+        db.session.commit()
+
+        self.assertTrue(u1.is_following(u2))
+
+    def test_is_followed_by(self):
+
+        u1 = User.query.get(self.u1_id)
+        u2 = User.query.get(self.u2_id)
+
+        self.assertFalse(u1.is_followed_by(u2))
+
+        u1.followers.append(u2)
+        db.session.commit()
+
+        self.assertTrue(u1.is_followed_by(u2))
