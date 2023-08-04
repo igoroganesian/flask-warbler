@@ -166,7 +166,7 @@ class Message(db.Model):
     """An individual message ("warble").
 
        1. message has backref to user
-       2. message has backref to users_who_liked_messages.
+       2. message has backref to liked_by_users.
     """
 
     __tablename__ = 'messages'
