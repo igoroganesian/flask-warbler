@@ -20,6 +20,7 @@
         {% if message.user_id != user.id %}
         <form action="#" method="POST">
           {{ form.hidden_tag() }}
+          <input type="hidden" name="came_from" value="/users/{{user.id}}">
           <button class="btn shadow-none"><a><i class="bi bi-star"></a></i></button>
         </form>
         {% endif %}

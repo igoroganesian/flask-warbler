@@ -36,7 +36,7 @@ def add_user_to_g():
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
-        g.CsrfForm = CsrfForm()
+        g.csrfform = CsrfForm()
 
     else:
         g.user = None
@@ -67,7 +67,7 @@ def signup():
     and re-present form.
     """
 
-    do_logout() #?
+    do_logout()  # ?
 
     if CURR_USER_KEY in session:
         return redirect(f"/users/{session[CURR_USER_KEY]}")
@@ -159,7 +159,7 @@ def list_users():
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
 
-    return render_template('users/index.html', users=users, form=g.CsrfForm)
+    return render_template('users/index.html', users=users, form=g.csrfform)
 
 
 @app.get('/users/<int:user_id>')
@@ -172,7 +172,7 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    return render_template('users/show.html', user=user, form=g.CsrfForm)
+    return render_template('users/show.html', user=user, form=g.csrfform)
 
 
 @app.get('/users/<int:user_id>/following')
@@ -184,7 +184,7 @@ def show_following(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user, form=g.CsrfForm)
+    return render_template('users/following.html', user=user, form=g.csrfform)
 
 
 @app.get('/users/<int:user_id>/followers')
@@ -196,7 +196,7 @@ def show_followers(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user, form=g.CsrfForm)
+    return render_template('users/followers.html', user=user, form=g.csrfform)
 
 
 @app.post('/users/follow/<int:follow_id>')
@@ -283,7 +283,7 @@ def delete_user():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    if g.CsrfForm.validate_on_submit():
+    if g.csrfform.validate_on_submit():
 
         do_logout()
 
@@ -328,14 +328,12 @@ def show_message(message_id):
         return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
-    like_ids = [like.id for like in g.user.likes]
 
     return render_template(
         'messages/show.html',
         message=msg,
-        form=g.CsrfForm,
-        like_ids=like_ids
-        )
+        form=g.csrfform,
+    )
 
 
 @app.post('/messages/<int:message_id>/delete')
@@ -374,8 +372,6 @@ def homepage():
         home_message_ids = [following.id for following in g.user.following]
         home_message_ids.append(g.user.id)
 
-        like_ids = [like.id for like in g.user.likes]
-
         messages = (Message
                     .query
                     .order_by(Message.timestamp.desc())
@@ -386,8 +382,7 @@ def homepage():
         return render_template(
             'home.html',
             messages=messages,
-            form=g.CsrfForm,
-            like_ids=like_ids
+            form=g.csrfform,
         )
 
     else:
@@ -415,33 +410,39 @@ def show_likes(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    like_ids = [like.id for like in user.likes]
 
     return render_template(
         'users/likes.html',
         user=user,
-        # form=g.CsrfForm,
-        like_ids=like_ids
+        form=g.csrfform,
     )
 
-@app.post('/users/<int:user_id>/likes/<int:msg_id>/add')
-def add_like(user_id, msg_id):
+
+@app.post('/likes/<int:msg_id>/add')
+def add_like(msg_id):
     """Add message to likes for currently-logged-in user. """
 
     if not g.user:
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    #prevent liking own messages + csrf
     message = Message.query.get_or_404(msg_id)
-    g.user.likes.append(message)
 
-    db.session.commit()
+    if message in g.user.messages:
+        # should be where they were,but we don't know
 
-    return redirect('/')
+        flash("You can't like your own messages!!", 'info')
+    else:
+        g.user.liked_messages.append(message)
 
-@app.post('/users/<int:user_id>/likes/<int:msg_id>/remove')
-def remove_like(user_id, msg_id):
+        db.session.commit()
+        # TODO:
+        came_from = request.form['came_from']
+        return redirect(came_from)
+
+
+@app.post('/likes/<int:msg_id>/remove')
+def remove_like(msg_id):
     """Remove message from likes for this user. """
 
     if not g.user:
@@ -449,7 +450,9 @@ def remove_like(user_id, msg_id):
         return redirect("/")
 
     liked_message = Message.query.get_or_404(msg_id)
-    g.user.likes.remove(liked_message)
+    g.user.liked_messages.remove(liked_message)
 
     db.session.commit()
-    return redirect('/')
+
+    came_from = request.form['came_from']
+    return redirect(came_from)

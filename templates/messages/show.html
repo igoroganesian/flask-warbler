@@ -43,21 +43,18 @@
           <span class="text-muted">
             {{ message.timestamp.strftime('%d %B %Y') }}
             <form>
-            {% if message.id not in like_ids %}
-            <button
-              formaction="/users/{{g.user.id}}/likes/{{message.id}}/add"
-              formmethod="POST"
-              class="btn shadow-none">
-              <a><i class="bi bi-star"></i></a>
-            </button>
-            {% else %}
-            <button
-              formaction="/users/{{g.user.id}}/likes/{{message.id}}/remove"
-              formmethod="POST"
-              class="btn shadow-none">
-              <a><i class="bi bi-star-fill"></i></a>
-            </button>
-            {% endif %}
+              {{ form.hidden_tag() }}
+              <input type="hidden" name="came_from" value="/messages/{{message.id}}">
+
+              {% if message not in g.user.liked_messages %}
+              <button formaction="/likes/{{message.id}}/add" formmethod="POST" class="btn shadow-none">
+                <a><i class="bi bi-star"></i></a>
+              </button>
+              {% else %}
+              <button formaction="/likes/{{message.id}}/remove" formmethod="POST" class="btn shadow-none">
+                <a><i class="bi bi-star-fill"></i></a>
+              </button>
+              {% endif %}
             </form>
           </span>
 

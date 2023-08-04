@@ -89,12 +89,11 @@ class User(db.Model):
 
     messages = db.relationship('Message', backref="user")
 
-    #liked messages [<>, <>]
-    likes = db.relationship(
+    liked_messages = db.relationship(
         "Message",
         secondary="likes",
-        backref="users",
-        #users who've liked..
+        backref="liked_by_users",
+
     )
 
     followers = db.relationship(
@@ -164,9 +163,12 @@ class User(db.Model):
 
 
 class Message(db.Model):
-    """An individual message ("warble")."""
+    """An individual message ("warble").
 
-#TODO: message re: backref
+       1. message has backref to user
+       2. message has backref to users_who_liked_messages.
+    """
+
     __tablename__ = 'messages'
 
     id = db.Column(
@@ -191,6 +193,7 @@ class Message(db.Model):
         nullable=False,
     )
 
+
 class Like(db.Model):
     """ Messages liked by user """
 
@@ -200,14 +203,14 @@ class Like(db.Model):
         db.Integer,
         db.ForeignKey('users.id', ondelete='CASCADE'),
         primary_key=True,
-        # nullable=False,
+
     )
 
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id', ondelete='CASCADE'),
         primary_key=True,
-        # nullable=False,
+
     )
 
 

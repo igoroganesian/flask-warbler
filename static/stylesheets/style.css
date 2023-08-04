@@ -14,11 +14,20 @@ body.error-404 {
 
 .btn {
   border-radius: 50px;
+  z-index:100;
 }
 
 .btn:hover {
   cursor: pointer;
+  z-index:100;
 }
+
+.bi-star,
+.bi-star-fill{
+
+  z-index:100;
+}
+
 
 /* ======================= Nav */
 
@@ -548,3 +557,4 @@ p.card-bio {
 .message-404 input {
   flex: 1;
 }
+
