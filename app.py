@@ -36,11 +36,14 @@ def add_user_to_g():
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
-        g.csrfform = CsrfForm()
-
     else:
         g.user = None
 
+@app.before_request
+def add_form_to_g():
+    """ Attach CSRF form to g """
+
+    g.csrfform = CsrfForm()
 
 def do_login(user):
     """Log in user."""
