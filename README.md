@@ -2,7 +2,7 @@
 Twitter clone w/ Flask backend
 
 
-## Setting Up The Environment
+## Setting up the environment
 1. Create a venv `python -m venv venv`
 2. Install the required python libraries from requirements.txt `pip install -r requirements.txt`
 
