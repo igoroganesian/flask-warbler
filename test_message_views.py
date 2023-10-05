@@ -10,26 +10,19 @@ from unittest import TestCase
 
 from models import db, Message, User
 
-# BEFORE we import our app, let's set an environmental variable
-# to use a different database for tests (we need to do this
-# before we import our app, since that will have already
-# connected to the database
+# env for test database
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler_test"
-
-# Now we can import app
 
 from app import app, CURR_USER_KEY
 
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
-# This is a bit of hack, but don't use Flask DebugToolbar
+# don't use Flask DebugToolbar
 
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 
-# Create our tables (we do this here, so we only create the tables
-# once for all tests --- in each test, we'll delete the data
-# and create fresh new clean test data
+# Tables created once for all tests
 
 db.drop_all()
 db.create_all()
@@ -55,14 +48,12 @@ class MessageBaseViewTestCase(TestCase):
 
 class MessageAddViewTestCase(MessageBaseViewTestCase):
     def test_add_message(self):
-        # Since we need to change the session to mimic logging in,
-        # we need to use the changing-session trick:
+        # Session-changing trick
         with app.test_client() as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.u1_id
 
-            # Now, that session setting is saved, so we can have
-            # the rest of ours test
+            # Now that session setting is saved, so the rest will test:
             resp = c.post("/messages/new", data={"text": "Hello"})
 
             self.assertEqual(resp.status_code, 302)

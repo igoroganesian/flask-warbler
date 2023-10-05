@@ -130,9 +130,8 @@ class User(db.Model):
     def authenticate(cls, username, password):
         """Find user with `username` and `password`.
 
-        This is a class method (call it on the class, not an individual user.)
-        It searches for a user whose password hash matches this password
-        and, if it finds such a user, returns that user object.
+        This is a class method. It searches for a user whose password hash
+        matches this password and, if it finds such a user, returns that user object.
 
         If this can't find matching user (or if password is wrong), returns
         False.

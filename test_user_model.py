@@ -16,14 +16,9 @@ from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
 
-# BEFORE we import our app, let's set an environmental variable
-# to use a different database for tests (we need to do this
-# before we import our app, since that will have already
-# connected to the database
+# env for test database
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler_test"
-
-# Now we can import app
 
 from app import app
 
@@ -31,17 +26,12 @@ TEST_IMAGE_URL = ("https://www.animalfriends.co.uk/siteassets/media/images" +
                  "/article-images/cat-articles/38_afi_article1_caring-for-" +
                  "a-kitten-tips-for-the-first-month.png")
 
-# Create our tables (we do this here, so we only create the tables
-# once for all tests --- in each test, we'll delete the data
-# and create fresh new clean test data
-
 db.drop_all()
 db.create_all()
 
 
 class UserModelTestCase(TestCase):
     def setUp(self):
-        # cascade deletes Messages etc.?
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)

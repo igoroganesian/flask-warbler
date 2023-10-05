@@ -5,8 +5,6 @@ import os
 
 from unittest import TestCase
 
-# from sqlalchemy.exc import IntegrityError
-
 from models import db, User
 
 os.environ['DATABASE_URL'] = "postgresql:///warbler_test"

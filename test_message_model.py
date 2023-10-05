@@ -19,7 +19,6 @@ db.create_all()
 
 class UserModelTestCase(TestCase):
     def setUp(self):
-        # cascade deletes Messages etc.?
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)
@@ -43,7 +42,7 @@ class UserModelTestCase(TestCase):
         m1 = Message.query.get(self.m1_id)
         u1 = User.query.get(self.u1_id)
 
-        # which one is better?
+        # to compare
         self.assertEqual(m1.text,'I am message1')
         self.assertEqual(u1.messages[0].text,'I am message1')
 
