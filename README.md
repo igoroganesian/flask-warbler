@@ -1,11 +1,49 @@
-# Warbler
-Twitter clone w/ Flask backend
+# Warbler - README
 
+## Overview
 
-## Setting up the environment
-1. Create a venv `python -m venv venv`
-2. Install the required python libraries from requirements.txt `pip install -r requirements.txt`
+Warbler is a Twitter clone with "warbles" replacing "tweets"; users have access to standard functionality such as following each other, liking warbles, and viewing warbles from followed users on their homepage. 
 
-## Running the flask server
-1. In the CLI use `flask run` to start the server.
-2. Access the site at `localhost:5001`
+## Dependencies
+
+Requires:
+- venv
+- Python3
+- PostgreSQL
+
+## Setup
+
+1. Create a Python virtual environment:
+```
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
+
+2. Install the required dependencies:
+```
+(venv) $ pip install -r requirements.txt
+```
+
+3. Set up the database:
+```
+(venv) $ psql
+=# CREATE DATABASE warbler;
+=# (ctrl-d/cmd-d to exit)
+(venv) $ python seed.py
+```
+
+4. Create an `.env` file to hold the configuration:
+```
+.env»
+SECRET_KEY=secret
+DATABASE_URL=postgresql:///warbler
+```
+
+5. Start the server:
+```
+(venv) $ flask run
+```
+**Note** If you encounter an "address already in use" error, try running on port 5001 instead via:
+`flask run -p 5001`
+
+Feel free to contact the project owner with any questions or feedback.
