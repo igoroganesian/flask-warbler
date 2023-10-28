@@ -2,7 +2,7 @@
 
 ## Overview
 
-Warbler is a Twitter clone with "warbles" replacing "tweets"; users have access to standard functionality such as following each other, liking warbles, and viewing warbles from followed users on their homepage. 
+Warbler is a social microblogging platform; users have access to standard functionality such as following each other, liking "warbles" (ie tweets), and viewing warbles from followed users on their homepage. 
 
 ## Dependencies
 
